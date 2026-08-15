@@ -9,10 +9,13 @@ const ThemeStore = findByStoreName('ThemeStore');
 
 const RowManager = findByName('RowManager');
 const getEmbedThemeColors = findByName('getEmbedThemeColors');
-const CodedLinkExtendedType = findByProps("CodedLinkExtendedType")?.CodedLinkExtendedType ?? { EMBEDDED_ACTIVITY_INVITE: 3 };
+const CodedLinkExtendedType =
+  findByProps('CodedLinkExtendedType')?.CodedLinkExtendedType ?? {
+    EMBEDDED_ACTIVITY_INVITE: 3,
+  };
 
 function getCodedLinkColors() {
-  let colors = getEmbedThemeColors?.(ThemeStore.theme)?.colors || {
+  let colors = getEmbedThemeColors?.(ThemeStore?.theme)?.colors || {
     acceptLabelGreenBackgroundColor: -14385083,
     headerColor: -6973533,
     borderColor: 268435455,
@@ -44,6 +47,12 @@ function makeRPL(filename = 'unknown', size = '? bytes') {
 }
 
 export default function patch() {
+  // NEW: no-op if module missing (modern Discord / Kettu)
+  if (!RowManager?.prototype) {
+    console.warn('[FileContentPreview] RowManager not found — row patch skipped');
+    return () => {};
+  }
+
   return after('generate', RowManager.prototype, (_, row) => {
     const { message } = row;
     if (!message) return;
