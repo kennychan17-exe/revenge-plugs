@@ -5,10 +5,23 @@ let patches: any[] = [];
 
 export default {
   onLoad: () => {
-    patches.push(patch0());
-    patches.push(patch1());
+    try {
+      patches.push(patch0());
+    } catch (e) {
+      console.error('[FileContentPreview] MessageHandlers patch failed', e);
+    }
+    try {
+      patches.push(patch1());
+    } catch (e) {
+      console.error('[FileContentPreview] RowManager patch failed', e);
+    }
   },
   onUnload: () => {
-    for (let unpatch of patches) unpatch();
+    for (let unpatch of patches) {
+      try {
+        unpatch?.();
+      } catch {}
+    }
+    patches = [];
   },
 };
